@@ -1,0 +1,50 @@
+
+###> symfony/framework-bundle ###
+/.env
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+
+###> symfony/webpack-encore-bundle ###
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+
+# Ignore Symfony binary
+/symfony.lock
+
+# Ignore log files
+/logs/
+*.log
+
+# Ignore cache files
+/cache/
+/var/cache/
+/var/log/
+
+# Ignore Docker-related files
+/.docker
+/docker-compose.yml
+Dockerfile
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore Composer lock file if needed (optional)
+composer.lock
+

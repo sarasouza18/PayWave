@@ -1,0 +1,11 @@
+# config/routes/payment.yaml
+
+pay_stripe:
+  path: /pay/stripe
+  controller: App\Controller\PaymentController::payWithStripe
+  methods: [POST]
+
+pay_paypal:
+  path: /pay/paypal
+  controller: App\Controller\PaymentController::payWithPayPal
+  methods: [POST]
