@@ -11,7 +11,7 @@ class PaymentRequest
      * @Assert\GreaterThan(value=0, message="Amount must be greater than zero.")
      * @Assert\Type(type="numeric", message="Amount must be a valid number.")
      */
-    public $amount;
+    public int|float $amount;
 
     public function __construct(float $amount = 0)
     {

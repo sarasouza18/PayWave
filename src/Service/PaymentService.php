@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\PaymentGatewayEntity;
 use App\Entity\PaymentStatusEntity;
 use App\Enum\PaymentGateway;
 use App\Enum\PaymentStatus;
@@ -25,7 +24,6 @@ class PaymentService
     {
         $this->stripeSecret = $stripeSecret;
 
-        // Initialize PayPal client
         $environment = new SandboxEnvironment($paypalClientId, $paypalSecret);
         $this->paypalClient = new PayPalHttpClient($environment);
         $this->entityManager = $entityManager;
@@ -38,11 +36,9 @@ class PaymentService
      */
     public function processPayment(string $gateway, float $amount, string $currency = 'usd'): PaymentIntent
     {
-        // Create a payment status entity
         $paymentStatus = new PaymentStatusEntity();
         $paymentStatus->setStatus(PaymentStatus::PENDING); // Set initial status
 
-        // Persist initial status
         $this->entityManager->persist($paymentStatus);
         $this->entityManager->flush();
 
@@ -65,17 +61,16 @@ class PaymentService
 
         try {
             $paymentIntent = PaymentIntent::create([
-                'amount' => $amount * 100, // Stripe works with cents
+                'amount' => $amount * 100,
                 'currency' => $currency,
                 'payment_method_types' => ['card'],
             ]);
-            $paymentStatus->setStatus(PaymentStatus::COMPLETED); // Update status to completed
-            return $paymentIntent; // Return the payment intent
+            $paymentStatus->setStatus(PaymentStatus::COMPLETED);
+            return $paymentIntent;
         } catch (Exception $e) {
-            $paymentStatus->setStatus(PaymentStatus::FAILED); // Update status to failed
+            $paymentStatus->setStatus(PaymentStatus::FAILED);
             throw new Exception("Error processing payment via Stripe: " . $e->getMessage());
         } finally {
-            // Persist updated payment status
             $this->entityManager->persist($paymentStatus);
             $this->entityManager->flush();
         }
@@ -102,13 +97,12 @@ class PaymentService
 
         try {
             $response = $this->paypalClient->execute($request);
-            $paymentStatus->setStatus(PaymentStatus::COMPLETED); // Update status to completed
-            return $response->result->id; // Return the order ID
+            $paymentStatus->setStatus(PaymentStatus::COMPLETED);
+            return $response->result->id;
         } catch (HttpException $e) {
-            $paymentStatus->setStatus(PaymentStatus::FAILED); // Update status to failed
+            $paymentStatus->setStatus(PaymentStatus::FAILED);
             throw new Exception("Error processing payment via PayPal: " . $e->getMessage());
         } finally {
-            // Persist updated payment status
             $this->entityManager->persist($paymentStatus);
             $this->entityManager->flush();
         }
@@ -123,23 +117,18 @@ class PaymentService
      */
     public function updatePaymentStatus(int $paymentId, string $status): void
     {
-        // Check if the status is valid
         if (!in_array($status, PaymentStatus::getAllStatuses())) {
             throw new Exception("Invalid payment status");
         }
 
-        // Find the payment status entity by ID
         $paymentStatus = $this->entityManager->getRepository(PaymentStatusEntity::class)->find($paymentId);
 
-        // Check if the payment status exists
         if (!$paymentStatus) {
             throw new Exception("Payment status not found");
         }
 
-        // Update the status
         $paymentStatus->setStatus($status);
 
-        // Persist the changes to the database
         $this->entityManager->persist($paymentStatus);
         $this->entityManager->flush();
     }
